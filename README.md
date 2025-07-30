@@ -97,16 +97,35 @@ git push origin main
 
 ### 3. Configurer l'authentification GitHub
 
-#### ⚠️ **Important :** Netlify Identity est déprécié depuis février 2025. Ce template utilise maintenant l'authentification GitHub directe.
+#### ⚠️ **Important :** Ce template utilise **Netlify Functions** pour l'authentification GitHub OAuth, remplaçant Netlify Identity qui est déprécié.
 
-#### Configuration automatique
+#### Configuration en 3 étapes
 
-L'authentification GitHub fonctionne automatiquement avec Decap CMS ! Aucune configuration supplémentaire n'est nécessaire sur Netlify.
+**Étape 1 : Créer une GitHub OAuth App**
+
+1. Allez sur GitHub : **Settings** → **Developer settings** → **OAuth Apps** → **New OAuth App**
+2. Configuration :
+   - **Application name** : `Portfolio CMS Auth`
+   - **Homepage URL** : `https://votre-site.netlify.app`
+   - **Authorization callback URL** : `https://votre-site.netlify.app/.netlify/functions/auth-callback`
+3. Notez le **Client ID** et générez un **Client Secret**
+
+**Étape 2 : Configurer les variables d'environnement**
+
+Sur votre dashboard Netlify :
+1. **Site settings** → **Environment variables**
+2. Ajoutez ces 2 variables :
+   - `GITHUB_CLIENT_ID` = votre_client_id
+   - `GITHUB_CLIENT_SECRET` = votre_client_secret
+
+**Étape 3 : Redéployer**
+
+Les Netlify Functions sont déjà incluses dans le template. Un redéploiement activera l'authentification.
 
 **Comment ça marche :**
 1. Les utilisateurs vont sur `https://votre-site.netlify.app/admin`
 2. Ils cliquent sur "Login with GitHub"
-3. GitHub demande l'autorisation d'accès au repository
+3. Redirection vers nos Netlify Functions qui gèrent l'OAuth
 4. Une fois autorisé, l'utilisateur peut modifier le contenu
 
 #### Permissions requises
@@ -115,6 +134,37 @@ Les utilisateurs doivent avoir **accès en écriture** au repository GitHub pour
 - **Propriétaire** : Accès complet automatique
 - **Collaborateurs** : Ajouter via GitHub Settings > Manage access > Invite a collaborator
 - **Membres d'organisation** : Configurer les permissions au niveau de l'organisation
+
+## 🔄 Comment fonctionne le système
+
+### Workflow complet
+
+```
+[Utilisateur] → [CMS /admin] → [Commit GitHub] → [Netlify détecte] → [Rebuild auto] → [Site mis à jour]
+```
+
+**1. Création de contenu**
+- L'utilisateur ajoute un projet via `/admin`
+- Decap CMS génère un fichier `.md` dans `content/projects/`
+- **Commit automatique** vers GitHub avec message descriptif
+
+**2. Mise à jour automatique**
+- Netlify détecte le nouveau commit
+- **Rebuild automatique** du site (2-5 minutes)
+- Le nouveau projet apparaît sur le site
+
+**3. Persistence**
+- ✅ Fichiers `.md` versionnés sur GitHub
+- ✅ Images sauvegardées sur Cloudinary
+- ✅ Aucune perte de données
+
+### Architecture technique
+
+- **Frontend** : Next.js 15 en mode SSG (Static Site Generation)
+- **CMS** : Decap CMS avec authentification Netlify Functions
+- **Contenu** : Fichiers Markdown dans le repository
+- **Images** : Cloudinary pour l'optimisation
+- **Déploiement** : Netlify avec rebuild automatique
 
 ## ✏️ Utilisation du CMS
 
@@ -220,22 +270,34 @@ src/
 ├── app/                    # Pages Next.js
 │   ├── about/             # Page à propos
 │   ├── projects/          # Pages projets
-│   └── layout.tsx         # Layout principal
+│   │   ├── [slug]/        # Pages projet individuelles
+│   │   ├── page.tsx       # Liste des projets
+│   │   └── projects-client.tsx # Composant client (filtres)
+│   ├── layout.tsx         # Layout principal
+│   └── page.tsx           # Page d'accueil
 ├── components/
 │   ├── layout/            # Header, Footer
 │   └── ui/                # Composants shadcn/ui
 └── lib/
-    ├── content.ts         # Utilitaires contenu
+    ├── content.ts         # Utilitaires contenu (SSG)
     └── utils.ts           # Utilitaires shadcn
+
+netlify/
+└── functions/             # Authentification OAuth
+    ├── auth.js           # Initiation OAuth GitHub
+    └── auth-callback.js  # Callback OAuth GitHub
 
 content/                   # Contenu Markdown
 ├── pages/                 # Pages statiques
-└── projects/              # Projets
+│   ├── homepage.md       # Contenu page d'accueil
+│   └── about.md          # Contenu page à propos
+└── projects/              # Projets (créés via CMS)
+    └── YYYY-MM-DD-titre-projet.md
 
 public/
 ├── admin/                 # Configuration Decap CMS
-│   ├── index.html
-│   └── config.yml
+│   ├── index.html        # Interface CMS
+│   └── config.yml        # Configuration backend GitHub
 └── uploads/               # Fallback pour gros fichiers
 ```
 
@@ -282,26 +344,48 @@ pnpm lint                 # Vérification du code
 
 ### Problèmes courants
 
-#### Le CMS ne charge pas
-- Vérifiez que `npx decap-server` fonctionne en local
+#### Erreur `"GITHUB_CLIENT_ID not configured"`
+- **Cause** : Variables d'environnement manquantes sur Netlify
+- **Solution** : 
+  1. Vérifiez **Site settings** → **Environment variables**
+  2. Ajoutez `GITHUB_CLIENT_ID` et `GITHUB_CLIENT_SECRET`
+  3. Redéployez le site
+
+#### Erreur 401 (Unauthorized) lors de la connexion
+- **Cause** : Configuration OAuth incorrecte
+- **Solution** :
+  1. Vérifiez l'URL de callback dans votre GitHub OAuth App
+  2. Doit être : `https://votre-site.netlify.app/.netlify/functions/auth-callback`
+  3. Vérifiez que vous avez les permissions sur le repository
+
+#### Le CMS ne charge pas en local
+- Vérifiez que `npx decap-server` fonctionne sur le port 8081
 - Vérifiez la configuration du repository dans `config.yml`
 - Assurez-vous d'avoir les permissions d'écriture sur le repository
 
 #### "Error loading the CMS configuration"
 - Vérifiez la syntaxe YAML dans `public/admin/config.yml`
 - Assurez-vous que le repository GitHub existe et est accessible
+- Vérifiez que la branche configurée existe (main/dev)
+
+#### Les nouveaux projets n'apparaissent pas
+- **Délai normal** : 2-5 minutes pour le rebuild automatique
+- Vérifiez les **Deploy logs** sur Netlify pour voir si le build réussit
+- Vérifiez que le commit a bien été fait sur GitHub
 
 #### Images qui ne s'affichent pas
 - Vérifiez votre configuration Cloudinary
 - Assurez-vous que les clés API sont correctes
+- Vérifiez les permissions du dossier Cloudinary
 
-#### Erreurs de build
-- Vérifiez que tous les fichiers Markdown ont un front-matter valide
-- Vérifiez la syntaxe YAML dans `config.yml`
+#### Erreur sur les caractères spéciaux dans les titres
+- **Normal** : Les slugs avec accents sont supportés
+- Si problème persistant, évitez les caractères spéciaux dans les titres
 
 #### "Failed to persist entry"
 - L'utilisateur n'a pas les permissions d'écriture sur le repository
 - Ajoutez l'utilisateur comme collaborateur avec le rôle "Write"
+- Vérifiez que le repository n'est pas en mode "Read-only"
 
 ## 🎓 Guide pour les étudiants
 
@@ -313,11 +397,17 @@ pnpm lint                 # Vérification du code
    backend:
      name: github
      repo: votre-username/portfolio-template
-     branch: main
+     branch: main # ou dev selon votre branche principale
    ```
 3. **Configurez** Cloudinary avec vos clés
-4. **Déployez** sur Netlify
-5. **Accédez** à `/admin` et connectez-vous avec GitHub
+4. **Déployez** sur Netlify (première fois)
+5. **Créez une GitHub OAuth App** :
+   - Homepage URL : `https://votre-site.netlify.app`
+   - Callback URL : `https://votre-site.netlify.app/.netlify/functions/auth-callback`
+6. **Ajoutez les variables d'environnement** sur Netlify :
+   - `GITHUB_CLIENT_ID` et `GITHUB_CLIENT_SECRET`
+7. **Redéployez** le site
+8. **Accédez** à `/admin` et connectez-vous avec GitHub ✅
 
 ### Workflow recommandé
 
@@ -346,16 +436,19 @@ Si vous avez un projet existant avec Netlify Identity :
      repo: username/repository-name
      branch: main
    ```
-3. **Supprimez** les redirects liés à Identity dans `netlify.toml`
-4. **Redéployez** votre site
-5. **Informez** les utilisateurs de se connecter avec GitHub
+3. **Ajoutez les Netlify Functions** (incluses dans ce template)
+4. **Configurez GitHub OAuth App** et variables d'environnement
+5. **Redéployez** votre site
+6. **Informez** les utilisateurs de se connecter avec GitHub
 
-### Avantages de la migration
+### Avantages de notre implémentation
 
-- ✅ **Plus simple** à configurer et maintenir
-- ✅ **Gratuit** et illimité
-- ✅ **Pas de dépendance** aux services dépréciés
-- ✅ **Meilleure** formation technique pour les étudiants
+- ✅ **Authentification robuste** avec Netlify Functions
+- ✅ **100% gratuit** (dans les limites Netlify)
+- ✅ **Pas de dépendance** aux services dépréciés  
+- ✅ **Formation complète** OAuth + Functions pour les étudiants
+- ✅ **Performance optimale** avec SSG
+- ✅ **Sécurisé** par défaut
 
 ## 📚 Ressources
 
@@ -365,6 +458,8 @@ Si vous avez un projet existant avec Netlify Identity :
 - [Composants shadcn/ui](https://ui.shadcn.com/)
 - [Documentation Cloudinary](https://cloudinary.com/documentation)
 - [Guide Netlify](https://docs.netlify.com/)
+- [Netlify Functions](https://docs.netlify.com/functions/overview/)
+- [GitHub OAuth Apps](https://docs.github.com/en/developers/apps/building-oauth-apps)
 - [Guide GitHub Collaborators](https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-access-to-your-personal-repositories/inviting-collaborators-to-a-personal-repository)
 
 ## 📄 Licence
@@ -373,7 +468,15 @@ Ce template est sous licence MIT. Vous êtes libre de l'utiliser pour vos projet
 
 ---
 
-**✨ Mise à jour 2025 : Authentification GitHub directe**
-**Plus besoin de Netlify Identity ! Configuration simplifiée et 100% gratuite.**
+**✨ Architecture 2025 : Netlify Functions + GitHub OAuth**
+**Authentification moderne, sécurisée et 100% gratuite avec rebuild automatique SSG.**
 
 **Créé avec ❤️ pour les étudiants en design graphique**
+
+### 🎯 **Ce qui rend ce template unique**
+
+- **🔐 OAuth complet** : Authentification GitHub via Netlify Functions
+- **⚡ SSG optimisé** : Performance maximale avec rebuild automatique  
+- **🎨 Interface moderne** : shadcn/ui + Tailwind CSS
+- **📝 CMS intuitif** : Decap CMS pour une expérience utilisateur parfaite
+- **🚀 Prêt à déployer** : Configuration en 10 minutes chrono
