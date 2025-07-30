@@ -2,9 +2,6 @@ backend:
   name: github
   repo: massa974/foliobase  # Remplacez par votre repository GitHub réel
   branch: dev
-  # Force l'authentification GitHub directe (bypass Netlify)
-  base_url: https://api.github.com
-  auth_endpoint: login/oauth/authorize
 
 # Configuration du stockage des médias avec Cloudinary
 media_library:
