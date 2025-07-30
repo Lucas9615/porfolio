@@ -1,7 +1,7 @@
 backend:
   name: github
-  repo: massa974/Portfolio-com  # Remplacez par votre repository GitHub réel
-  branch: main
+  repo: garry/Portfolio-com  # Remplacez par votre repository GitHub réel
+  branch: dev
 
 # Configuration du stockage des médias avec Cloudinary
 media_library:
