@@ -86,8 +86,8 @@ export default function Home() {
                   <CardContent className="p-6">
                     <div className="flex flex-wrap gap-2 mb-3">
                       <Badge variant="secondary">{project.project_type}</Badge>
-                      {project.client && (
-                        <Badge variant="outline">{project.client}</Badge>
+                      {project.annonceur && (
+                        <Badge variant="outline">{project.annonceur}</Badge>
                       )}
                     </div>
                     <h3 className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">

@@ -7,12 +7,19 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
-  // Configuration pour supporter les fichiers Markdown et les images
+  // Configuration pour supporter les fichiers Markdown, les images et react-pdf
   webpack: (config: any) => {
     config.module.rules.push({
       test: /\.md$/,
       use: 'raw-loader',
     })
+    
+    // Configuration pour react-pdf
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      canvas: false,
+    }
+    
     return config
   },
 }

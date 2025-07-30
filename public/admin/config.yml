@@ -55,7 +55,9 @@ collections:
     fields:
       - { label: "Titre", name: "title", widget: "string" }
       - { label: "Date de création", name: "date", widget: "datetime" }
-      - { label: "Client", name: "client", widget: "string", required: false }
+      - { label: "Annonceur", name: "annonceur", widget: "string", required: false }
+      - { label: "Contexte", name: "contexte", widget: "select", options: ["Alternance", "École", "Projet personnel", "Client", "Autre"] }
+      - { label: "Précision contexte", name: "contexte_autre", widget: "string", required: true, condition: { field: "contexte", value: "Autre" } }
       - { label: "Type de projet", name: "project_type", widget: "select", options: ["Identité visuelle", "Site web", "Print", "Packaging", "Illustration", "Autre"] }
       - { label: "Technologies/Outils", name: "tools", widget: "list", field: { label: "Outil", name: "tool", widget: "string" } }
       - { label: "Image principale", name: "featured_image", widget: "image" }
@@ -64,6 +66,19 @@ collections:
       - { label: "Statut", name: "status", widget: "select", options: ["En cours", "Terminé", "En pause"], default: "Terminé" }
       - { label: "Portfolio PDF", name: "pdf_portfolio", widget: "file", required: false, hint: "Taille recommandée : moins de 20MB" }
       - { label: "URL du projet", name: "project_url", widget: "string", required: false }
+      - { label: "Cibles", name: "cibles", widget: "text", required: false, hint: "Décrivez les cibles visées par ce projet" }
+      - { label: "Stratégie créative", name: "strategie_creative", widget: "text", required: false, hint: "Expliquez la stratégie créative utilisée" }
+      - { label: "Objectifs cognitifs", name: "objectifs_cognitifs", widget: "list", required: false, field: { label: "Objectif", name: "objectif", widget: "string" } }
+      - { label: "Objectifs affectifs", name: "objectifs_affectifs", widget: "list", required: false, field: { label: "Objectif", name: "objectif", widget: "string" } }
+      - { label: "Objectifs conatifs", name: "objectifs_conatifs", widget: "list", required: false, field: { label: "Objectif", name: "objectif", widget: "string" } }
+      - { label: "Preuves", name: "preuves", widget: "list", required: false, fields: [
+          { label: "Type", name: "type", widget: "select", options: ["Image", "URL", "PDF", "Video"] },
+          { label: "Description", name: "description", widget: "string" },
+          { label: "Fichier/Image", name: "file", widget: "image", required: false, condition: { field: "type", value: "Image" } },
+          { label: "PDF", name: "pdf", widget: "file", required: false, condition: { field: "type", value: "PDF" } },
+          { label: "URL", name: "url", widget: "string", required: false, condition: { field: "type", value: "URL" } },
+          { label: "URL YouTube", name: "youtube_url", widget: "string", required: false, condition: { field: "type", value: "Video" }, hint: "URL complète de la vidéo YouTube" }
+        ] }
       - { label: "Extrait", name: "excerpt", widget: "text" }
       - { label: "Description complète", name: "body", widget: "markdown" }
       - { label: "Publié", name: "published", widget: "boolean", default: true }

@@ -7,11 +7,22 @@ const pagesDirectory = path.join(contentDirectory, 'pages')
 const projectsDirectory = path.join(contentDirectory, 'projects')
 
 // Types
+export interface ProjectEvidence {
+  type: 'Image' | 'URL' | 'PDF' | 'Video'
+  description: string
+  file?: string // Pour les images
+  pdf?: string // Pour les PDFs
+  url?: string // Pour les URLs
+  youtube_url?: string // Pour les vidéos YouTube
+}
+
 export interface Project {
   slug: string
   title: string
   date: string
-  client?: string
+  annonceur?: string
+  contexte: 'Alternance' | 'École' | 'Projet personnel' | 'Client' | 'Autre'
+  contexte_autre?: string // Obligatoire quand contexte = "Autre"
   project_type: string
   tools: string[]
   featured_image: string
@@ -20,6 +31,12 @@ export interface Project {
   status: 'En cours' | 'Terminé' | 'En pause'
   pdf_portfolio?: string
   project_url?: string
+  cibles?: string
+  strategie_creative?: string
+  objectifs_cognitifs?: string[]
+  objectifs_affectifs?: string[]
+  objectifs_conatifs?: string[]
+  preuves?: ProjectEvidence[]
   excerpt: string
   body: string
   published: boolean

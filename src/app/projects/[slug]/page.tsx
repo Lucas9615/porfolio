@@ -3,10 +3,12 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import { ProjectEvidenceList } from "@/components/ui/project-evidence"
+import { ProjectObjectives, ProjectStrategy } from "@/components/ui/project-objectives"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { MDXRemote } from "next-mdx-remote/rsc"
-import { ArrowLeft, ExternalLink, Download, Calendar, User, Clock, ChevronLeft, ChevronRight } from "lucide-react"
+import { ArrowLeft, ExternalLink, Download, Calendar, User, Clock, ChevronLeft, ChevronRight, Building, GraduationCap } from "lucide-react"
 
 interface ProjectPageProps {
   params: Promise<{
@@ -81,10 +83,16 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         <div className="max-w-7xl mx-auto mb-12">
           <div className="flex flex-wrap gap-2 mb-4">
             <Badge variant="secondary">{project.project_type}</Badge>
-            {project.client && (
-              <Badge variant="outline">{project.client}</Badge>
+            {project.annonceur && (
+              <Badge variant="outline">{project.annonceur}</Badge>
             )}
             <Badge variant="outline">{project.status}</Badge>
+            <Badge variant="outline" className="flex items-center gap-1">
+              {project.contexte === 'École' ? <GraduationCap className="h-3 w-3" /> : 
+               project.contexte === 'Client' ? <Building className="h-3 w-3" /> : null}
+              {project.contexte}
+              {project.contexte === 'Autre' && project.contexte_autre && ` (${project.contexte_autre})`}
+            </Badge>
           </div>
           
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
@@ -138,7 +146,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
               {/* Galerie d'images */}
               {project.gallery && project.gallery.length > 0 && (
-                <div>
+                <div className="mb-8">
                   <h2 className="text-2xl font-bold mb-6">Galerie</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {project.gallery.map((item, index) => (
@@ -152,6 +160,30 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                     ))}
                   </div>
                 </div>
+              )}
+
+              {/* Stratégie et ciblage */}
+              <ProjectStrategy 
+                cibles={project.cibles}
+                strategie_creative={project.strategie_creative}
+                className="mb-8"
+              />
+
+              {/* Objectifs pédagogiques */}
+              <ProjectObjectives 
+                cognitifs={project.objectifs_cognitifs}
+                affectifs={project.objectifs_affectifs}
+                conatifs={project.objectifs_conatifs}
+                className="mb-8"
+              />
+
+              {/* Preuves du projet */}
+              {project.preuves && project.preuves.length > 0 && (
+                <ProjectEvidenceList 
+                  evidences={project.preuves}
+                  title="Preuves et éléments complémentaires"
+                  className="mb-8"
+                />
               )}
             </div>
 
@@ -177,16 +209,30 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                       </div>
                     </div>
 
-                    {/* Client */}
-                    {project.client && (
+                    {/* Annonceur */}
+                    {project.annonceur && (
                       <div className="flex items-center gap-3">
                         <User className="h-4 w-4 text-muted-foreground" />
                         <div>
-                          <p className="text-sm font-medium">Client</p>
-                          <p className="text-sm text-muted-foreground">{project.client}</p>
+                          <p className="text-sm font-medium">Annonceur</p>
+                          <p className="text-sm text-muted-foreground">{project.annonceur}</p>
                         </div>
                       </div>
                     )}
+
+                    {/* Contexte */}
+                    <div className="flex items-center gap-3">
+                      {project.contexte === 'École' ? <GraduationCap className="h-4 w-4 text-muted-foreground" /> : 
+                       project.contexte === 'Client' ? <Building className="h-4 w-4 text-muted-foreground" /> : 
+                       <Clock className="h-4 w-4 text-muted-foreground" />}
+                      <div>
+                        <p className="text-sm font-medium">Contexte</p>
+                        <p className="text-sm text-muted-foreground">
+                          {project.contexte}
+                          {project.contexte === 'Autre' && project.contexte_autre && ` (${project.contexte_autre})`}
+                        </p>
+                      </div>
+                    </div>
 
                     {/* Durée */}
                     {project.duration && (
@@ -216,6 +262,16 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                       </div>
                     </>
                   )}
+
+                  {/* Objectifs en mode compact */}
+                  <ProjectObjectives 
+                    cognitifs={project.objectifs_cognitifs}
+                    affectifs={project.objectifs_affectifs}
+                    conatifs={project.objectifs_conatifs}
+                    title="Objectifs"
+                    compact={true}
+                    className="my-6"
+                  />
 
                   {/* Actions */}
                   <Separator className="my-6" />

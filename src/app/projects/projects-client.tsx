@@ -29,7 +29,7 @@ export default function ProjectsClient({ projects }: ProjectsClientProps) {
     return projects.filter(project => {
       const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            project.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           (project.client && project.client.toLowerCase().includes(searchTerm.toLowerCase()))
+                           (project.annonceur && project.annonceur.toLowerCase().includes(searchTerm.toLowerCase()))
       
       const matchesType = selectedType === "all" || project.project_type === selectedType
 
@@ -111,8 +111,8 @@ export default function ProjectsClient({ projects }: ProjectsClientProps) {
                 <CardContent className="p-6">
                   <div className="flex flex-wrap gap-2 mb-3">
                     <Badge variant="secondary">{project.project_type}</Badge>
-                    {project.client && (
-                      <Badge variant="outline">{project.client}</Badge>
+                    {project.annonceur && (
+                      <Badge variant="outline">{project.annonceur}</Badge>
                     )}
                     <Badge variant="outline" className="text-xs">
                       {project.status}
