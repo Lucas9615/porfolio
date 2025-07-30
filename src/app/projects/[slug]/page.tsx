@@ -20,7 +20,7 @@ export async function generateStaticParams() {
   try {
     const slugs = getProjectSlugs()
     return slugs.map((slug) => ({
-      slug,
+      slug: encodeURIComponent(slug), // Encoder pour correspondre aux URLs
     }))
   } catch (error) {
     console.error('Error generating static params:', error)
@@ -62,7 +62,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
   // Obtenir les projets suivant et précédent
   const allProjects = getAllProjects()
-  const currentIndex = allProjects.findIndex(p => p.slug === slug)
+  const currentIndex = allProjects.findIndex(p => p.slug === decodedSlug)
   const previousProject = currentIndex > 0 ? allProjects[currentIndex - 1] : null
   const nextProject = currentIndex < allProjects.length - 1 ? allProjects[currentIndex + 1] : null
 
