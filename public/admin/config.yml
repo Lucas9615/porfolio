@@ -1,6 +1,6 @@
 backend:
   name: github
-  repo: username/portfolio-repository  # À remplacer par le nom de votre repository
+  repo: garry/Portfolio-com  # Remplacez par votre repository GitHub réel
   branch: main
 
 # Configuration du stockage des médias avec Cloudinary
