@@ -3,18 +3,9 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ArrowRight, Eye, ExternalLink } from "lucide-react"
+import { getFeaturedProjects } from "@/lib/content"
 
-// Type pour les projets featured
-interface FeaturedProject {
-  slug: string
-  title: string
-  date: string
-  client?: string
-  project_type: string
-  featured_image?: string
-  excerpt: string
-  project_url?: string
-}
+// Les types sont importés depuis @/lib/content
 
 export default function Home() {
   // Données par défaut si le contenu n'existe pas encore
@@ -27,7 +18,7 @@ export default function Home() {
   }
 
   const pageData = defaultData
-  const featuredProjects: FeaturedProject[] = [] // Sera remplacé par les vrais projets via Decap CMS
+  const featuredProjects = getFeaturedProjects(3) // Les 3 projets les plus récents
 
   return (
     <div className="min-h-screen">
