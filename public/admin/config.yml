@@ -2,6 +2,8 @@ backend:
   name: github
   repo: massa974/foliobase  # Remplacez par votre repository GitHub réel
   branch: dev
+  base_url: https://foliobase.netlify.app  # URL de votre site
+  auth_endpoint: /.netlify/functions/auth  # Notre fonction d'authentification
 
 # Configuration du stockage des médias avec Cloudinary
 media_library:
