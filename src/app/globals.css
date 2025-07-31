@@ -68,6 +68,61 @@
   }
 }
 
+/* Styles personnalisés pour le contenu prose (Markdown) */
+@layer components {
+  .prose {
+    @apply text-foreground;
+  }
+  
+  .prose h1 {
+    @apply text-foreground font-bold;
+  }
+  
+  .prose h2 {
+    @apply text-foreground font-semibold;
+  }
+  
+  .prose h3 {
+    @apply text-foreground font-semibold;
+  }
+  
+  .prose h4 {
+    @apply text-foreground font-medium;
+  }
+  
+  .prose p {
+    @apply text-foreground leading-relaxed;
+  }
+  
+  .prose strong {
+    @apply text-foreground font-semibold;
+  }
+  
+  .prose ul > li {
+    @apply text-foreground;
+  }
+  
+  .prose ol > li {
+    @apply text-foreground;
+  }
+  
+  .prose blockquote {
+    @apply text-muted-foreground border-l-border;
+  }
+  
+  .prose code {
+    @apply text-foreground bg-muted px-1 py-0.5 rounded;
+  }
+  
+  .prose pre {
+    @apply bg-muted text-foreground;
+  }
+  
+  .prose a {
+    @apply text-primary hover:text-primary/80;
+  }
+}
+
 /* Styles pour react-pdf */
 .react-pdf__Page {
   display: flex !important;
