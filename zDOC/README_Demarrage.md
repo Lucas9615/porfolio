@@ -17,8 +17,8 @@ Un template moderne et professionnel pour créer un portfolio de graphiste freel
 
 ## 📋 Prérequis
 
-- Node.js 18+ 
-- pnpm (recommandé) ou npm
+- Node.js 18+ (Télécharger depuis le web si utilisation en local)
+- pnpm (recommandé)
 - Un compte GitHub
 - Un compte Netlify
 - Un compte Cloudinary (gratuit)
@@ -28,8 +28,8 @@ Un template moderne et professionnel pour créer un portfolio de graphiste freel
 ### 1. Cloner le repository
 
 ```bash
-git clone <votre-repo>
-cd portfolio-template
+git clone https://github.com/massa974/foliobase
+cd foliobase
 ```
 
 ### 2. Installer les dépendances
@@ -97,7 +97,7 @@ git push origin main
 
 ### 3. Configurer l'authentification GitHub
 
-#### ⚠️ **Important :** Ce template utilise **Netlify Functions** pour l'authentification GitHub OAuth, remplaçant Netlify Identity qui est déprécié.
+#### ⚠️ **Important :** Ce template utilise **Netlify Functions** pour l'authentification GitHub OAuth.
 
 #### Configuration en 3 étapes
 
@@ -106,7 +106,7 @@ git push origin main
 1. Allez sur GitHub : **Settings** → **Developer settings** → **OAuth Apps** → **New OAuth App**
 2. Configuration :
    - **Application name** : `Portfolio CMS Auth`
-   - **Homepage URL** : `https://votre-site.netlify.app`
+   - **Homepage URL** : `https://votre-site.netlify.app` (Remplacer par la véritable url)
    - **Authorization callback URL** : `https://votre-site.netlify.app/.netlify/functions/auth-callback`
 3. Notez le **Client ID** et générez un **Client Secret**
 
