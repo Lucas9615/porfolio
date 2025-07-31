@@ -29,21 +29,21 @@ function ObjectiveItem({ objectives, type, compact = false }: ObjectiveItemProps
       case 'cognitifs':
         return {
           icon: <Brain className="h-4 w-4" />,
-          label: 'Objectifs cognitifs',
+          label: 'Cognitifs',
           description: 'Connaissances et compétences intellectuelles',
           color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
         }
       case 'affectifs':
         return {
           icon: <Heart className="h-4 w-4" />,
-          label: 'Objectifs affectifs',
+          label: 'Affectifs',
           description: 'Attitudes et émotions',
           color: 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-300'
         }
       case 'conatifs':
         return {
           icon: <Target className="h-4 w-4" />,
-          label: 'Objectifs conatifs',
+          label: 'Conatifs',
           description: 'Actions et comportements',
           color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
         }
@@ -112,7 +112,7 @@ export function ProjectObjectives({
   affectifs, 
   conatifs, 
   className, 
-  title = "Objectifs pédagogiques",
+  title = "Objectifs",
   compact = false 
 }: ProjectObjectivesProps) {
   const hasObjectives = (cognitifs && cognitifs.length > 0) || 

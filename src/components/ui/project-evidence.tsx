@@ -194,7 +194,6 @@ export function ProjectEvidenceItem({ evidence, className, compact = false }: Pr
           <PdfViewer
             url={evidence.pdf}
             title={evidence.description}
-            height={400}
             allowDownload={true}
           />
         )}
