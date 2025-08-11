@@ -11,6 +11,13 @@ const compat = new FlatCompat({
 
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
+  {
+    rules: {
+      // Désactiver le warning pour les balises <img> car nous utilisons l'export statique
+      // où next/image n'apporte pas d'avantages significatifs avec Cloudinary
+      "@next/next/no-img-element": "off",
+    },
+  },
 ];
 
 export default eslintConfig;

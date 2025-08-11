@@ -1,4 +1,4 @@
-const fetch = require('node-fetch');
+// Utilisation du fetch natif de Node.js 18+
 
 exports.handler = async (event) => {
   const { code } = event.queryStringParameters;

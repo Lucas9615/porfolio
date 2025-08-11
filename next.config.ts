@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
   output: 'export',
   trailingSlash: true,
   images: {
-    unoptimized: true,
+    unoptimized: true, // Requis pour l'export statique avec export: 'static'
   },
   // Configuration pour supporter les fichiers Markdown, les images et react-pdf
   webpack: (config: any) => {
