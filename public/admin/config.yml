@@ -1,7 +1,7 @@
 backend:
   name: github
   repo: Lucas9615/porfolio
-  branch: main
+  branch: dev
   auth_endpoint: /.netlify/functions/auth
 
 # URL du site pour afficher un lien dans la navbar du CMS
