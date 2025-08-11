@@ -1,99 +1,92 @@
-exports.handler = async (event, context) => {
-  const { code, state } = event.queryStringParameters || {};
-  
+const fetch = require('node-fetch');
+
+exports.handler = async (event) => {
+  const { code } = event.queryStringParameters;
+  const clientId = process.env.GITHUB_CLIENT_ID;
+  const clientSecret = process.env.GITHUB_CLIENT_SECRET;
+  const siteUrl = process.env.URL; // URL fournie par Netlify
+
   if (!code) {
     return {
       statusCode: 400,
-      body: JSON.stringify({ error: 'No authorization code provided' })
+      body: JSON.stringify({ error: 'Authorization code not provided.' }),
     };
   }
-
-  const clientId = process.env.GITHUB_CLIENT_ID;
-  const clientSecret = process.env.GITHUB_CLIENT_SECRET;
 
   if (!clientId || !clientSecret) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'GitHub OAuth not configured' })
+      body: JSON.stringify({ error: 'GITHUB_CLIENT_ID or GITHUB_CLIENT_SECRET not set.' }),
     };
   }
 
   try {
-    // Échanger le code contre un token d'accès
-    const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
+    const response = await fetch('https://github.com/login/oauth/access_token', {
       method: 'POST',
       headers: {
-        'Accept': 'application/json',
         'Content-Type': 'application/json',
+        Accept: 'application/json',
       },
       body: JSON.stringify({
         client_id: clientId,
         client_secret: clientSecret,
-        code: code,
+        code,
       }),
     });
 
-    const tokenData = await tokenResponse.json();
+    const data = await response.json();
 
-    if (tokenData.error) {
+    if (data.error) {
       return {
-        statusCode: 400,
-        body: JSON.stringify({ error: tokenData.error_description || tokenData.error })
+        statusCode: 401,
+        body: JSON.stringify({ error: data.error_description || 'Unknown error' }),
       };
     }
 
-    // Script pour envoyer le token au CMS
     const script = `
       <script>
         (function() {
-          function receiveMessage(e) {
-            console.log("receiveMessage %o", e);
-            if (e.origin !== "${process.env.URL}") {
-              console.log("Invalid origin: %o", e.origin);
-              return;
+          const message = {
+            token: "${data.access_token}",
+            provider: "github"
+          };
+
+          const sendMessage = () => {
+            // Le message doit être un objet stringifié pour Decap CMS
+            const messageString = "authorization:github:success:" + JSON.stringify(message);
+            
+            // Tenter de communiquer avec la fenêtre parente (opener)
+            if (window.opener) {
+              window.opener.postMessage(messageString, "${siteUrl}");
+            } else {
+              console.error("No opener window found to post message to.");
             }
-            // Envoyer le token au CMS
-            e.source.postMessage(
-              'authorization:github:success:${JSON.stringify({
-                token: tokenData.access_token,
-                provider: 'github'
-              })}',
-              e.origin
-            );
+          };
+
+          // Envoyer un message pour indiquer que la fenêtre est prête
+          // et que l'authentification peut commencer
+          if (window.opener) {
+             window.opener.postMessage("authorizing:github", "${siteUrl}");
           }
-          window.addEventListener("message", receiveMessage, false);
-          // Informer que la fenêtre est prête
-          console.log("Posting message to %o", "${process.env.URL}");
-          window.opener && window.opener.postMessage("authorizing:github", "${process.env.URL}");
+          
+          // Laisser le temps à l'application principale de s'initialiser
+          setTimeout(sendMessage, 500);
+
+          // Sécurité : fermer la fenêtre après un court délai
+          setTimeout(() => window.close(), 2000);
         })();
       </script>
     `;
 
     return {
       statusCode: 200,
-      headers: {
-        'Content-Type': 'text/html',
-      },
-      body: `
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <title>Authentification réussie</title>
-          </head>
-          <body>
-            <h1>Authentification réussie !</h1>
-            <p>Vous pouvez fermer cette fenêtre.</p>
-            ${script}
-          </body>
-        </html>
-      `
+      headers: { 'Content-Type': 'text/html' },
+      body: `<!DOCTYPE html><html><head><title>Authenticating...</title></head><body>${script}</body></html>`,
     };
-
   } catch (error) {
-    console.error('OAuth callback error:', error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Internal server error' })
+      body: JSON.stringify({ error: 'Server error during authentication.' }),
     };
   }
 }; 
