@@ -8,17 +8,18 @@ backend:
 # URL du site pour afficher un lien dans la navbar du CMS
 # site_url: https://foliobase.netlify.app
 
-# Configuration du stockage des médias avec Cloudinary
-media_library:
-  name: cloudinary
-  config:
-    cloud_name: dtnbb9ykw  # À remplacer par le nom de votre compte Cloudinary
-    api_key: 116398255276922        # À remplacer par votre clé API Cloudinary
-    multiple: true
-
-# Dossier de stockage des médias dans le repository (fallback pour PDF > 20MB)
+# Configuration temporaire - stockage local des médias
+# Remplacez par Cloudinary quand vous aurez votre compte
 media_folder: "public/uploads"
 public_folder: "/uploads"
+
+# Configuration Cloudinary (à configurer avec vos propres identifiants)
+# media_library:
+#   name: cloudinary
+#   config:
+#     cloud_name: VOTRE_CLOUD_NAME  # À remplacer par votre cloud name
+#     api_key: VOTRE_API_KEY        # À remplacer par votre API key
+#     multiple: true
 
 # Configuration locale pour le développement (désactivé en production)
 # local_backend: true
